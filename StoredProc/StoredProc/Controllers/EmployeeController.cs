@@ -124,7 +124,7 @@ namespace StoredProc.Controllers
         }
 
         [HttpGet]
-        public IActionResult SearchWithDynamics()
+        public IActionResult SearchWithDynamic()
         {
             string connectionStr = _config.GetConnectionString("DefaultConnection");
 
@@ -132,18 +132,21 @@ namespace StoredProc.Controllers
             {
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
-                cmd.CommandText = "dbo.spSearchEmployees";
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                StringBuilder sbCommand = new
+
+                StringBuilder("Select * from Employees where 1 = 1");
+                cmd.CommandText = sbCommand.ToString();
+                cmd.CommandType = CommandType.Text;
                 con.Open();
-                SqlDataReader sdr = cmd.ExecuteReader();
+                SqlDataReader rdr = cmd.ExecuteReader();
                 List<Employee> model = new List<Employee>();
-                while (sdr.Read())
+                while (rdr.Read())
                 {
                     var details = new Employee();
-                    details.FirstName = sdr["FirstName"].ToString();
-                    details.LastName = sdr["LastName"].ToString();
-                    details.Gender = sdr["Gender"].ToString();
-                    details.Salary = Convert.ToInt32(sdr["Salary"]);
+                    details.FirstName = rdr["FirstName"].ToString();
+                    details.LastName = rdr["LastName"].ToString();
+                    details.Gender = rdr["Gender"].ToString();
+                    details.Salary = Convert.ToInt32(rdr["Salary"]);
                     model.Add(details);
                 }
                 return View(model);
@@ -151,7 +154,7 @@ namespace StoredProc.Controllers
         }
 
         [HttpPost]
-        public IActionResult SearchWithDynamics(string firstName, string lastName, string gender, int salary)
+        public IActionResult SearchWithDynamic(string inputFirstname, string inputLastname, string inputGender, int inputSalary)
         {
             string connectionStr = _config.GetConnectionString("DefaultConnection");
 
@@ -159,133 +162,142 @@ namespace StoredProc.Controllers
             {
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
-                cmd.CommandText = "dbo.spSearchEmployees";
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                StringBuilder sbCommand = new
 
-                StringBuilder stringBuilder = new StringBuilder("Select * from Employees where 1 = 1");
-
-                if (firstName != null)
+                StringBuilder("Select * from Employees where 1 = 1");
+                if (inputFirstname != null)
                 {
-                    stringBuilder.Append(" AND FirstName=@FirstName");
-                    SqlParameter param_fn = new SqlParameter("@FirstName", firstName);
-                    cmd.Parameters.Add(param_fn);
+                    sbCommand.Append(" AND FirstName=@FirstName");
+                    SqlParameter param = new
+                    SqlParameter("@FirstName", inputFirstname);
+                    cmd.Parameters.Add(param);
                 }
-                if (lastName != null)
+                if (inputLastname != null)
                 {
-                    stringBuilder.Append(" AND LastName=@LastName");
-                    SqlParameter param_ln = new SqlParameter("@LastName", lastName);
-                    cmd.Parameters.Add(param_ln);
+                    sbCommand.Append(" AND LastName=@LastName");
+                    SqlParameter param = new
+                    SqlParameter("@LastName", inputLastname);
+                    cmd.Parameters.Add(param);
                 }
-                if (gender != null)
+                if (inputGender != null)
                 {
-                    stringBuilder.Append(" AND Gender=@Gender");
-                    SqlParameter param_g = new SqlParameter("@Gender", gender);
-                    cmd.Parameters.Add(param_g);
+                    sbCommand.Append(" AND Gender=@Gender");
+                    SqlParameter param = new
+                    SqlParameter("@Gender", inputGender);
+                    cmd.Parameters.Add(param);
                 }
-                if (salary != 0)
+                if (inputSalary != 0)
                 {
-                    stringBuilder.Append(" AND Salary=@Salary");
-                    SqlParameter param_s = new SqlParameter("@Salary", salary);
-                    cmd.Parameters.Add(param_s);
+                    sbCommand.Append(" AND Salary=@Salary");
+                    SqlParameter param = new
+                    SqlParameter("@Salary", inputSalary);
+                    cmd.Parameters.Add(param);
                 }
+                cmd.CommandText = sbCommand.ToString();
+                cmd.CommandType = CommandType.Text;
                 con.Open();
-                SqlDataReader sdr = cmd.ExecuteReader();
+                SqlDataReader rdr = cmd.ExecuteReader();
                 List<Employee> model = new List<Employee>();
-                while (sdr.Read())
+                while (rdr.Read())
                 {
                     var details = new Employee();
-                    details.FirstName = sdr["FirstName"].ToString();
-                    details.LastName = sdr["LastName"].ToString();
-                    details.Gender = sdr["Gender"].ToString();
-                    details.Salary = Convert.ToInt32(sdr["Salary"]);
+                    details.FirstName = rdr["FirstName"].ToString();
+                    details.LastName = rdr["LastName"].ToString();
+                    details.Gender = rdr["Gender"].ToString();
+                    details.Salary = Convert.ToInt32(rdr["Salary"]);
                     model.Add(details);
                 }
                 return View(model);
             }
         }
 
-
-        /// <summary>
-        /// DynamicSQLInStoredProcedure
-        /// </summary>
-        /// <returns></returns>
         [HttpGet]
         public IActionResult DynamicSQLInStoredProcedure()
         {
             string connectionStr = _config.GetConnectionString("DefaultConnection");
-
             using (SqlConnection con = new SqlConnection(connectionStr))
             {
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
-                cmd.CommandText = "dbo.spSearchEmployeesGoodDynamicSQL";
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd.CommandText = "spSearchEmployeesGoodDynamicSQL";
+                cmd.CommandType = CommandType.StoredProcedure;
                 con.Open();
-                SqlDataReader sdr = cmd.ExecuteReader();
+                SqlDataReader rdr = cmd.ExecuteReader();
                 List<Employee> model = new List<Employee>();
-                while (sdr.Read())
+                while (rdr.Read())
                 {
                     var details = new Employee();
-                    details.FirstName = sdr["FirstName"].ToString();
-                    details.LastName = sdr["LastName"].ToString();
-                    details.Gender = sdr["Gender"].ToString();
-                    details.Salary = Convert.ToInt32(sdr["Salary"]);
+                    details.FirstName = rdr["FirstName"].ToString();
+                    details.LastName = rdr["LastName"].ToString();
+                    details.Gender = rdr["Gender"].ToString();
+                    details.Salary = Convert.ToInt32(rdr["Salary"]);
                     model.Add(details);
                 }
                 return View(model);
             }
         }
 
-
-        /// <summary>
-        /// DynamicSQLInStoredProcedure
-        /// </summary>
-        /// <returns></returns>
         [HttpPost]
-        public IActionResult DynamicSQLInStoredProcedure(string firstName, string lastName, string gender, int salary)
+        public IActionResult DynamicSQLInStoredProcedure(string inputFirstname, string inputLastname, string inputGender, int inputSalary)
         {
             string connectionStr = _config.GetConnectionString("DefaultConnection");
-
             using (SqlConnection con = new SqlConnection(connectionStr))
             {
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
-                cmd.CommandText = "dbo.spSearchEmployeesGoodDynamicSQL";
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                if (firstName != null)
+                cmd.CommandText = "spSearchEmployeesGoodDynamicSQL";
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                if (inputFirstname != null)
                 {
-                    SqlParameter param = new SqlParameter("@FirstName", firstName);
+                    SqlParameter param = new SqlParameter("@FirstName",
+                        inputFirstname);
                     cmd.Parameters.Add(param);
                 }
-                if (lastName != null)
+
+                if (inputLastname != null)
                 {
-                    SqlParameter param = new SqlParameter("@LastName", lastName);
+                    SqlParameter param = new SqlParameter("@LastName",
+                        inputLastname);
                     cmd.Parameters.Add(param);
                 }
-                if (gender != null)
+
+                if (inputGender != null)
                 {
-                    SqlParameter param = new SqlParameter("@Gender", gender);
+                    SqlParameter param = new SqlParameter("@Gender",
+                        inputGender);
                     cmd.Parameters.Add(param);
                 }
-                if (salary != 0)
+
+                if (inputSalary != 0)
                 {
-                    SqlParameter param = new SqlParameter("@Salary", salary);
+                    SqlParameter param = new SqlParameter("@Salary",
+                        inputSalary);
                     cmd.Parameters.Add(param);
                 }
+
                 con.Open();
-                SqlDataReader sdr = cmd.ExecuteReader();
+                SqlDataReader rdr = cmd.ExecuteReader();
                 List<Employee> model = new List<Employee>();
-                while (sdr.Read())
+                while (rdr.Read())
                 {
                     var details = new Employee();
-                    details.FirstName = sdr["FirstName"].ToString();
-                    details.LastName = sdr["LastName"].ToString();
-                    details.Gender = sdr["Gender"].ToString();
-                    details.Salary = Convert.ToInt32(sdr["Salary"]);
+                    details.FirstName = rdr["FirstName"].ToString();
+                    details.LastName = rdr["LastName"].ToString();
+                    details.Gender = rdr["Gender"].ToString();
+                    details.Salary = Convert.ToInt32(rdr["Salary"]);
                     model.Add(details);
                 }
                 return View(model);
+
+
             }
         }
+
+
+
+
+
+
     }
 }
